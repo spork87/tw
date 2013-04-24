@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# twitter - Single line log entries with timestamps, saved in "~/.twitter".
+
+# Remember to backslash escape single quotes, double quotes, or other fancy characters.
+
+# Fri Jan 30 15:25:44 CST 2009 Created a few days ago.  adamm
+# Wed Dec 15 11:06:50 CST 2010 Added "no option" for log output and ruler printing.  This makes "interactive" mode unneeded.
+
+TW_LOG=~/bin/twitter_log
+
+USAGE=<<-"EOF"
+	tw
+	tw This is a test post
+
+	Try using a terminal for personal log (aka twitter off the net).
+	If you'd prefer to not 'clear and tail' after a post, you can comment-out or remove the 'clear; tail_log; ruler' from after a tweet is logged.
+
+	#TopicKeywords @user
+	RT
+
+EOF
+# FIXME rewrite in python using "quickly for ubuntu" to provide a gui https://launchpad.net/quickly
+# FIXME make an actual twitter client
+# FIXME make a module for that weird CLI internet suite by Julian Assange
+
+HELP=<<-"EOF"
+	http://dict.org
+	From The Collaborative International Dictionary of English v.0.48 : 
+
+	Twitter \Twit"ter\, v. i. [imp. & p. p. Twittered; p. pr. &
+     	vb. n. Twittering.] [OE. twiteren; of imitative origin; cf.
+     	G. zwitschern, OHG. zwizzir[=o]n, D. kwetteren, Sw. qvittra,
+     	Dan. quiddre. Cf. Titter.]
+     	1. To make a succession of small, tremulous, intermitted
+        	noises.
+        	[1913 Webster]
+  
+              	The swallow twittering from the straw-built shed.
+                                                    --Gray.
+        	[1913 Webster]
+  
+     	2. To make the sound of a half-suppressed laugh; to titter;
+        	to giggle. --J. Fletcher.
+        	[1913 Webster]
+  
+     	3. [Perhaps influenced by twitch.] To have a slight trembling
+        	of the nerves; to be excited or agitated.
+        	[1913 Webster]
+
+	http://en.wikipedia.org/wiki/Twitter
+	Twitter, Inc.
+	Type 	Private
+	Founded 	2006
+	Headquarters 	San Francisco, California, USA
+	Key people 	Jack Dorsey, Evan Williams, Biz Stone
+	Industry 	mobile social network service, micro-blogging
+	Employees 	31
+	Website 	http://twitter.com/
+
+	Twitter is a social networking and micro-blogging service that allows its 
+	users to send and read other users' updates (otherwise known as tweets), 
+	which are text-based posts of up to 140 characters in length.
+
+	Updates are displayed on the user's profile page and delivered to other users
+	who have signed up to receive them. Senders can restrict delivery to those in
+	their circle of friends (delivery to everyone being the default). Users can 
+	receive updates via the Twitter website, SMS, RSS, or through applications
+	such as TwitterMobile, Tweetie, Twinkle, Twitterrific, Feedalizr, Facebook,
+	and Twidget, a widget application. Four gateway numbers are currently
+	available for SMS: short codes for the United States, Canada, and India, and
+	a United Kingdom-based number for international use. Several third parties
+	offer posting and receiving updates via email. Twitter had by one measure over
+	3 million accounts[1] and, by another, well over 5 million visitors in
+	September 2008, a fivefold increase in a month.[2]
+EOF
+
+HOST=`uname -n | cut -d. -f1`
+DIR=`pwd | awk -F/ '{print $NF}'`
+# FIXME if $DIR == $HOME; then $DIR = '~'
+PROMPT=`echo "[$USER@$HOST $DIR]$ tw "`
+PROMPT_LENGTH=`echo -n "$PROMPT" | wc -c`
+
+function tail_log() {
+	YEAR=`date +%Y`
+	MONTH=`date +%m`
+	DAY=`date +%d`
+	HOUR=`date +%H`
+	MINUTE=`date +%M`
+	
+
+	# Tail the log if no options given.
+	# Use sed to change matching year, month and day entries to whitespace.
+	# Use sed to change matching hour and minute
+	# FIXME use the terminal dimensions to determine the ammount to tail: rows - 2 (for ruler and prompt)
+	tail -100 $TW_LOG \
+	| sed -e "s/^$YEAR/    /; s/^    $MONTH/      /; s/^      $DAY-/         /" \
+	| sed -e "s/^         $HOUR:/            /; s/^            $MINUTE:/               /"
+
+	# FIXME Put whitespace for non-changing year-month-day
+
+}
+
+if [[ "$1" == '-h' ]]; then
+	# FIXME Use -h or --help as command line option.
+	echo Helping
+	echo $HELP
+
+elif [[ $# > 0 ]]; then
+	# Log the comment for anything besides help.
+	timestamp=`date +%Y%m%d-%T`
+	echo "$timestamp $@" >> $TW_LOG
+
+	# FIXME adapt both functions for the terminal width
+	clear; tail_log; ruler $PROMPT_LENGTH 140
+
+else
+	clear; tail_log; ruler $PROMPT_LENGTH 140
+fi
