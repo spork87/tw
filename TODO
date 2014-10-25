@@ -1,0 +1,4 @@
+Improve bash style score (find a style critic app first).
+Convert to Python.
+Add support for synchronized file (aka Dropbox, Google Drive, _Git_, etc.)
+Make paired client for Android using chord keyboard input as unlock screen app.
